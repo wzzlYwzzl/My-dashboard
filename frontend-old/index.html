@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Kubernetes Cluster</title>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="lib/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="lib/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="css/dashboard.css">
+	<link rel="icon" type="image/x-icon" href="img/kubernetes-logo.png">
+	<script type="text/javascript" src="lib/jquery/jquery-2.2.2.min.js"></script>
+	<script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="lib/jquery.nicescroll/jquery.nicescroll.min.js"></script>
+</head>
+<body>
+	<header>
+		<div class="container fixed-row">
+			<div  class="row">
+				<div class="col-xs-12 col-sm-12">
+					<div class="foldingpad"> <i class="fa fa-dedent"></i></div>
+					<div class="global-notice"></div>
+					<ul class="nav-bar">
+						<li class="use">
+							<a class="cursor nav-t">
+								<div class="namespace">wzzlYwzzl</div>
+								<img src="img/user.png" style="height: 36px" class="username hide" title="wzzlYwzzl"> <b class="caret username"></b>
+							</a>
+							<input type="hidden" id="is_tenxcloud_guide_on" name="is_tenxcloud_user_guide_on" value="off">
+							<div class="userList">
+								<div class="rows"></div>
+								<a href="/profile/basic" class="li"><i class="fa_baseinfo"></i><span>info</span></a>
+								<a href="/profile/password" class="li"><i class="fa_lock"></i><span>password</span></a>
+								<a href="/auth/logout" id="logout" class="li hr"><i class="fa_out"></i><span>logout</span></a>
+							</div>		
+						</li>
+						<input type="hidden" id="user_memory_limit" value="512"></input>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<div id="progress"></div>
+	</header>
+	<div class="page-sidebar">
+		<div class="log">
+			<a href="http://kubernetes.io/" title="kuberntes" target="_blank" class="kuberntes">
+				<span class="logo"></span>
+			</a>
+		</div>
+		<ul class="nav-menu" tabindex="0" style="overflow: hidden; outline: none;">
+			<li class="nav-li item-click">
+				<a href="http://kubernetes.io/" data-permalink="" onclick="_permalink(this);">
+					<i class="nav-icon-dashboard nav-icon"></i>
+					<span class="nav-title">OverView</span>
+				</a>
+			</li>
+			<li class="nav-li">
+				<a data-permalink="">
+					<i class="nav-icon-container nav-icon"></i>
+					<span class="nav-title">Kube-Services</span>
+					<span class="nav-sign">
+						<i class="fa fa-angle-down"></i>
+					</span>
+				</a>
+				<div class="nav-item-list" style="display: none;">
+					<ul class="list-detail" id="containers">
+						<li id="containersService" href="/containers" dataid="container-server">
+							<span>Service</span>
+						</li>
+						<li id="saveBackups" href="/containers" detaid="save-backups">
+							<span>Storage And Backup</span>
+						</li>
+					</ul>	
+				</div>
+			</li>
+			<li class="nav-li">
+				<a data-premalink="">
+					<i class="nav-icon-extend nav-icon"></i>
+					<span class="nav-title">RC</span>
+					<span class="nav-sign">
+						<i class="fa fa-angle-down"></i>
+					</span>
+				</a>
+				<div class="nav-item-list" style="display: none;">
+					<ul class="list-detail" id="rc-arrange">
+						<li id="containers" href="/kubernetes-containers">
+							<span>My RC</span>
+						</li>
+					</ul>
+				</div>
+			</li>
+			<li class="nav-li">
+				<a data-permalink="">
+					<i class="nav-icon-speed nav-icon"></i>
+					<span class="nav-title">Pods</span>
+					<span class="nav-sign">
+						<i class="fa fa-angle-down"></i>
+					</span>
+				</a>
+				<div class="nav-item-list" style="display: none;">
+					<ul class="list-detail" id="kuberntes-container">
+						<li id="containers" href="/kubernetes-containers">
+							<span>My pods</span>
+						</li>
+					</ul>
+				</div>
+			</li>
+			<li class="nav-li">
+				<a data-permalink="">
+					<i class="nav-icon-speed nav-icon"></i>
+					<span class="nav-title">Image Registry</span>
+					<span class="nav-sign">
+						<i class="fa fa-angle-down"></i>
+					</span>
+				</a>
+				<div class="nav-item-list" style="display: none;">
+					<ul class="list-detail" id="docker-registry">
+						<li id="publicImageBtn" href="/docker-registry">
+							<span>Image Center</span>
+						</li>
+						<li id="privateImageBtn" href="/docker-registry">
+							<span>My Image</span>
+						</li>
+						<li id="favouritesImageBtn" href="/docker-registry">
+							<span>Favourites</span>
+						</li>
+					</ul>
+				</div>
+			</li>
+		</ul>
+	</div>
+	<div class="page-small-sidebar" style="margin-left: -55px">
+		<div class="log">
+			<a href="http://kubernetes.io" title="kubernetes">
+				<img src="img/kubernetes-logo.png" class="samll-logo">
+			</a>
+		</div>
+		<ul id="nav-zone">
+			<li class="nav-li-small">
+				<a href="http://kubernetes.io" data-permalink onclick="_permalink(this);">
+					<i class="nav-icon-dashboard nav-icon"></i>
+				</a>
+			</li>
+			<li class="nav-li-small">
+				<a href="/services" data-permalink onclick="_permalink(this);">
+					<i class="nav-icon-container nav-icon"></i>
+				</a>
+				<ul class="nav-item-hover" dataid="containers">
+					<li class="containersService" href="/containers" dataId="container-server"><span>Service</span></li>
+					<li class="saveBackups" href="/containers" dataId="save-backups"><span>Storage And Backup</span></li>
+				</ul>
+			</li>
+			<li class="nav-li-small">
+				<a href="/ci" data-permalink onclick="_permalink(this);">
+					<i class="nav-icon-build nav-icon"></i>
+				</a>
+				<ul class="nav-item-hover" dataid="ci">
+					<li class="containers" href="/ci"><span>My RC</span></li>
+				</ul>
+			</li>
+			<li class="nav-li-small">
+				<a href="/pods" data-permalink onclick="_permalink(this);">
+					<i class="nav-icon-speed nav-icon"></i>
+				</a>
+				<ul class="nav-item-hover" dataid="kubernetes-pods">
+					<li class="pods" href="/pods"><span>My pods</span></li>
+				</ul>
+			</li>
+			<li class="nav-li-small">
+				<a href="/docker-registry" data-permalink onclick="_permalink(this)">
+					<i class="nav-icon-extend nav-icon"></i>
+				</a>
+				<ul class="nav-item-hover">
+					<li class="publicImageBtn" href="/docker-registry"><span>Image Center</span></li>
+					<li class="privateImageBtn" href="/docker-registrt"><span>My Images</span></li>
+					<li class="favouritesImageBtn" href="/docker-registry"><span>Favourites</span></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	<div class="page-container" style="margin-left: 200px;">
+		<article>
+			
+		</article>
+	</div>
+	<script type="text/javascript" src="js/console-duang.js"></script>
+</body>
+</html>
