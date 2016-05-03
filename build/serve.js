@@ -39,3 +39,15 @@ const backendArgs = [
  * @type {?child.ChildProcess}
  */
 let runningBackendProcess = null;
+
+/**
+ * Initializes BrowserSync tool. Files are served from baseDir directory list and all API calls
+ * are proxied to a running backend instance. When includeBowerComponents is true, requests for
+ * paths starting with '/bower_components' are routed to bower components directory.
+ *
+ * @param {!Array<string>|string} baseDir
+ * @param {boolean} includeBowerComponents
+ */
+function browserSyncInit(baseDir, includeBowerComponents) {
+    
+}
