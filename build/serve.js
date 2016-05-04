@@ -19,9 +19,9 @@ export const browserSyncInstance = browserSync.create();
  * @type {!Array<string>}
  */
 const backendDevArgs = [
-    `--apiserver-host=${conf.backend.apiSerberHost}`,
-    `--port=${conf.backend.devServerPort}`,
-    `--heapster-host=${conf.backend.heapsterServerHost}`,
+  `--apiserver-host=${conf.backend.apiSerberHost}`,
+  `--port=${conf.backend.devServerPort}`,
+  `--heapster-host=${conf.backend.heapsterServerHost}`,
 ];
 
 /**
@@ -29,9 +29,9 @@ const backendDevArgs = [
  * @type {!Array<string>}
  */
 const backendArgs = [
-    `--apiserver-host=${conf.backend.apiServerHost}`,
-    `--port=${conf.backend.serverPort}`,
-    `--heapster-host=${conf.backend.heapsterServerHost}`,
+  `--apiserver-host=${conf.backend.apiServerHost}`,
+  `--port=${conf.backend.serverPort}`,
+  `--heapster-host=${conf.backend.heapsterServerHost}`,
 ];
 
 /**
@@ -49,5 +49,128 @@ let runningBackendProcess = null;
  * @param {boolean} includeBowerComponents
  */
 function browserSyncInit(baseDir, includeBowerComponents) {
-    
+    // Enable custom support for Angular apps, e.g., history management.
+    browserSyncInstance.use(browserSyncSpa({
+      selector: '[ng-app]',
+    }));
+
+    let apiRoute = '/api';
+    let proxyMiddlewareOptions = url.parse(`http://localhost:${conf.backend.devServerPort}${apiRoute}`);
+    proxyMiddlewareOptions.route = apiRoute;
+
+    let config = {
+      browser: [],
+      directory: false,
+      server: {
+        baseDir: baseDir,
+        middleware: proxyMiddleware(proxyMiddlewareOptions),
+      },
+      port: conf.fontend.serverPort,
+      startPath: '/',
+    };
+
+    if (includeBowerComponents) {
+        config.server.routes = {
+          '/bower_components': conf.paths.bower_components,
+        };
+    }
+
+    browserSyncInstance.init(config);
 }
+
+/**
+ * Serves the application in development mode.
+ */
+funcion serveDevelopmentMode() {
+  browserSyncInit(
+    [
+      conf.paths.serve,
+      conf.paths.frontendSrc,  // For angular templates to work.
+      conf.paths.app,           // For assets to work.
+    ],
+    true);
+}
+
+/**
+ * Serves the application in development mode. Watches for changes in the source files to rebuild 
+ * development artifacts.
+ */
+gulp.task('serve', ['spawn-backend', 'watch'], serveDevelopmentMode);
+
+/**
+ * Serves the applicaion in development mode.
+ */
+gulp.task('serve:nowatch', ['spawn-backend', 'index'], serveDevelopmentMode);
+
+/**
+ * Serves the application in production mode.
+ */
+gulp.tast('serve:prod', ['spawn-backend:prod']);
+
+/**
+ * Spawns new backend applicaion process and finishes the task immidiately. Previously spawned backend 
+ * process is killed beforehand, if any. The frontend pages are served by BrowserSync.
+ */
+gulp.task('spawn-backend', ['backend', 'kill-backend'], function() {
+  runningBackendProcess = child.spawn(
+    path.join(conf.paths.serve, conf.backend.binaryName), backendDevArgs, {stdio: 'inherit'});
+
+  runningBackendProcess.on('exit', function() {
+    // Mark that there is no backend process running anymore.
+    runningBackendProcess = null;
+  });
+});
+
+/**
+ * Spawns new backend application process and finishes the task immediately. Previously spawned 
+ * backend process is killed beforehand, if any. In production the backend does serve the frontend 
+ * pages as well.
+ */
+gulp.task('spawn-backend:prod', ['build-frontend', 'backend', 'kill-backend'], function() {
+  runningBackendProcess = child.spawn(
+  path.join(conf.paths.serve, conf.backend.binaryName), backendArgs, {stdio: 'inherit', cwd: conf.paths.dist});
+
+  runningBackendProcess.on('exit', function() {
+    runningBackendProcess = null;
+  });
+});
+
+/**
+ * Kill running backend process.
+ */
+gulp.task('kill-backend', function(doneFn) {
+  if (runningBackendProcess) {
+    runningBackendProcess.on('exit', function() {
+      runningBackendProcess = null;
+      // Finish the task only when the backend is actually killed.
+      doneFn();
+    });
+    runningBackendProcess.kill();
+  } else {
+    doneFn();
+  }
+});
+
+/**
+ * Watches for changes in source files and runs Gulp tasks to rebuild them.
+ */
+gulp.task('watch', ['index'], function() {
+  gulp.watch([path.join(conf.paths.frontendSrc, 'index.html'), 'bower.json'], ['index']);
+
+  gulp.watch(
+    [
+      path.join(conf.paths.frontendSrc, '**/*.scss'),
+    ],
+    function(event) {
+      if (event.type === 'changed') {
+        // If this is a file change, rebuild only styles - nothing more is done.
+        gulp.start('styles');
+      } else {
+        // If this is new/deleted file, everything has to be rebuilt.
+        gulp.start('index');
+      }
+    });
+
+  gulp.watch(path.join(conf.paths.frontendSrc, '**/*.js'), ['scripts']);
+  gulp.watch(path.join(conf.paths.backendSrc, '**/*.go'), ['spawn-backend']);
+});
