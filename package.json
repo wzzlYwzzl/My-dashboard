@@ -4,7 +4,7 @@
   "version": "1.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kubernetes/dashboard.git"
+    "url": "https://github.com/wzzlYwzzl/My-dashboard.git"
   },
   "license": "Apache-2.0",
   "devDependencies": {
