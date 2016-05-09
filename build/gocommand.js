@@ -68,3 +68,78 @@ function checkGo() {
 /**
  * Checks if go version fulfills the minimum version prerequisite, promises
  */
+function checkGoVersion() {
+  let deferred = q.defer();
+  child.exec(
+    'go version',
+    {env: env,},
+    function(error, stdout) {
+      let match = /[\d\.]+/.exec(stdout.toString()); // matches version number.
+      if (match === null || match.length < 1) {
+        deferred.reject(new Error('Go version not found'));
+        return;
+      }
+
+      let currentGoVersion = match[0];
+      if (currentGoVersion.split('.').length === 2) {
+        currentGoVersion = `${currentGoVersion}.0`;
+      }
+      if (semver.lt(currentGoVersion, minGoVersion)) {
+        deferred.reject(new Error(
+              `The current go version '${currentGoVersion}' is older than ` +
+              `the minimum required version '${minGoVersion}'. ` +
+              `Please upgrade your go version!`));
+        return;
+      }
+      deferred.resolve();
+    });
+
+  return deferred.promise;
+}
+
+/**
+ * Checks if godep is on PATH prior to a go command execution, promises an error otherwise.
+ */
+function checkGodep() {
+  let deferred = q.defer();
+  child.exec(
+      'which godep', {
+        env: env,
+      },
+      function(error, stdout, stderror) {
+        if (error || stderror || !stdout) {
+          deferred.reject(new Error(
+              'Godep is not on the path. ' +
+              'Please run "npm install" in the base directory of the project.'));
+          return;
+        }
+        deferred.resolve();
+      });
+  return deferred.promise;
+}
+
+/**
+ * Spawns Go process wrapped with the Godep command.
+ * Promises an error if the go command process fails.
+ *
+ * @param {!Array<string>} args - Arguments of the go command.
+ * @param {!Object<string, string>=} [envOverride] optional environment variables overrides map.
+ * @return {Q.Promise} A promise object.
+ */
+function spawnProcess(args, envOverride) {
+  let deferred = q.defer();
+  let envLocal = lodash.merge(env, envOverride);
+  let goTask = child.spawn('godep', ['go'].concat(args), {
+    env: envLocal,
+    stdio: 'inherit',
+  });
+
+  goTask.on('exit', function(code) {
+    if (code != 0) {
+      deferred.reject(Error(`Go command error, code: ${code}`));
+      return;
+    }
+    deferred.resolve();
+  });
+  return deferred.promise;
+}
