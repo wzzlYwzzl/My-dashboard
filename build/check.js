@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Gulp tasks for checking and validating the code or a commit.
+ */
 import gulp from 'gulp';
 import gulpClangFormat from 'gulp-clang-format';
 import gulpEslint from 'gulp-eslint';

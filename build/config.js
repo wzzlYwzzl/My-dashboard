@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Common configuration constants used in other build/test files.
+ */
 import path from 'path';
 
 /**

@@ -1,3 +1,6 @@
+/**
+ * @fileoverview Gulp tasks for kubernetes cluster management.
+ */
 import childProcess from 'child_process';
 import gulp from 'gulp';
 import gulpUtil from 'gulp-util';
