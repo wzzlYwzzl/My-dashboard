@@ -42,3 +42,5 @@ COPY ./ ./
 
 # Install all npm deps, bower deps and godep. This will take a while.
 RUN npm install --unsafe-perm
+
+//test git
